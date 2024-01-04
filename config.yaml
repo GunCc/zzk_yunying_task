@@ -14,3 +14,8 @@ mysql:
   db-name: task_pre_work
   username: root
   password: "123456"
+
+redis:
+    db: 0
+    password: ""
+    addr: 127.0.0.1:6379

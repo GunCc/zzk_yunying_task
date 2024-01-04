@@ -4,6 +4,7 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/initialize/internal"
 	"ZZK_YUNYING_TASK/model/system"
+	"fmt"
 	"os"
 
 	"go.uber.org/zap"
@@ -20,6 +21,17 @@ func Gorm() *gorm.DB {
 		DSN:                       ms.Dsn(),
 		DefaultStringSize:         191,   // string 类型默认的长度
 		SkipInitializeWithVersion: false, // 根据版本自动配置
+	}
+
+	createSql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;", ms.DbName)
+
+	dsn := ms.MysqlEmptyDsn()
+
+	err := InitDatabase(dsn, createSql)
+
+	if err != nil {
+		global.TASK_LOGGER.Error("数据库创建失败！", zap.Error(err))
+		return nil
 	}
 
 	if db, err := gorm.Open(mysql.New(mysqlConfig), internal.GormConfig.GetGormConfig()); err != nil {

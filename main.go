@@ -4,6 +4,8 @@ import (
 	"ZZK_YUNYING_TASK/core"
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/initialize"
+
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -11,6 +13,9 @@ func main() {
 	global.TASK_VIPER = core.Viper()
 	// 日志系统
 	global.TASK_LOGGER = core.Zap()
+
+	// 替换全局日志
+	zap.ReplaceGlobals(global.TASK_LOGGER)
 
 	// 连接数据库
 	global.TASK_DB = initialize.Gorm()
