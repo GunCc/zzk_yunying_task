@@ -9,7 +9,7 @@ import (
 type SysUser struct {
 	global.TASK_MODEL
 	UUID     uuid.UUID `json:"uuid" gorm:"index;comment:用户UUID"`
-	NickName string    `json:"nickname" gorm:"index;comment:昵称"`
+	NickName string    `json:"nickname" gorm:"index;comment:昵称;column:nickname"`
 	Password string    `json:"password" gorm:"password;comment:密码"`
 }
 

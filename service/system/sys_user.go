@@ -36,3 +36,15 @@ func (SysUserService) Register(register request.Register) (user *system.SysUser,
 	err = global.TASK_DB.Create(user).Error
 	return user, err
 }
+
+func (SysUserService) Login(login request.Login) (sys_user *system.SysUser, err error) {
+	err = global.TASK_DB.Where("nickname = ?", login.NickName).First(&sys_user).Error
+
+	if err == nil {
+		if ok := utils.BcryptCheck(sys_user.Password, login.Password); !ok {
+			return nil, errors.New("密码错误")
+		}
+	}
+
+	return sys_user, err
+}

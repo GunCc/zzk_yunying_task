@@ -16,6 +16,6 @@ func (UserRouter) InitUserRouter(router *gin.RouterGroup) {
 	{
 		// 登陆注册路由
 		userRouter.POST("/register", userApi.Register)
-		// userRouter.POST("/login", userApi.Login)
+		userRouter.POST("/login", userApi.Login)
 	}
 }
