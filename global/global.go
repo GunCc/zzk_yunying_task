@@ -10,5 +10,5 @@ import (
 var (
 	TASK_VIPER  *viper.Viper
 	TASK_CONFIG config.Config
-	TASK_ZAP    *zap.Logger
+	TASK_LOGGER *zap.Logger
 )
