@@ -50,6 +50,7 @@ func RegisterTables(db *gorm.DB) {
 	// 注册表
 	err := db.AutoMigrate(
 		&system.SysUser{},
+		&system.SysVideo{},
 	)
 	if err != nil {
 		global.TASK_LOGGER.Error("表初始化失败", zap.Error(err))

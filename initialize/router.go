@@ -35,8 +35,9 @@ func Routers() *gin.Engine {
 	}
 
 	// 私有路由
-	// PrivateGroup := Router.Group("")
+	PrivateGroup := Router.Group("")
 	{
+		systemRouter.InitVideoRouter(PrivateGroup)
 	}
 
 	return Router
