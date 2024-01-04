@@ -4,6 +4,7 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/model/system/request"
 	"errors"
+	"fmt"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v4"
@@ -33,13 +34,16 @@ func (j *JWT) CreateClaims(baseClaims request.BaseClaims) request.CustomClaims {
 	// 有效时间
 	ep, _ := ParseDuration(global.TASK_CONFIG.JWT.ExpiresTime)
 
+	fmt.Println("有效时间", ep, global.TASK_CONFIG.JWT)
+	fmt.Println("有效时间", ep, global.TASK_CONFIG.Server)
+
 	clamis := request.CustomClaims{
 		BaseClaims: baseClaims,
 		BufferTime: int64(bf / time.Second), //缓冲时间一天
-		RegisteredClaims: jwt.RegisteredClaims{
-			NotBefore: jwt.NewNumericDate(time.Now()),         // 签名生效时间
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ep)), // 过期时间 7天  配置文件
-			Issuer:    global.TASK_CONFIG.JWT.Issuer,          // 签名的发行者
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix() - 1000,      // 签名生效时间
+			ExpiresAt: time.Now().Add(ep).Unix(),     // 过期时间 7天  配置文件
+			Issuer:    global.TASK_CONFIG.JWT.Issuer, // 签名的发行者
 		},
 	}
 	return clamis

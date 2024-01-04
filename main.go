@@ -9,8 +9,12 @@ import (
 )
 
 // @title       云影天光后端开发实习生笔试题
-// @version     1.0
+// @version     1.1
 // @description 云影天光后端开发实习生笔试题
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name x-token
+// @BasePath /
 func main() {
 	// 配置Viper服务读取配置文件，因为我们后续会将服务部署上去，所以使用viper好管理一些配置属性
 	global.TASK_VIPER = core.Viper()

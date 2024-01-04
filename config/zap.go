@@ -9,7 +9,7 @@ import (
 type Zap struct {
 	Level    string `yaml:"level" json:"level" `      // 级别
 	Director string `yaml:"director" json:"director"` // 存放的目录名
-	MaxAge   int    `yaml:"max-age" json:"max-age" `  // 存活时间 以天为单位
+	MaxAge   int    `yaml:"maxAge" json:"maxAge" `    // 存活时间 以天为单位
 	Format   string `yaml:"format" json:"format" `    // 打印格式 有json和console
 }
 

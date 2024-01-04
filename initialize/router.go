@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"ZZK_YUNYING_TASK/middleware"
 	"ZZK_YUNYING_TASK/router"
 
 	"github.com/gin-gonic/gin"
@@ -36,6 +37,7 @@ func Routers() *gin.Engine {
 
 	// 私有路由
 	PrivateGroup := Router.Group("")
+	PrivateGroup.Use(middleware.JWTAuth())
 	{
 		systemRouter.InitVideoRouter(PrivateGroup)
 	}

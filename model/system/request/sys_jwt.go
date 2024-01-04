@@ -8,8 +8,8 @@ import (
 // 自定义标准
 type CustomClaims struct {
 	BaseClaims
-	BufferTime           int64
-	jwt.RegisteredClaims //jwt自带标准要求
+	BufferTime int64
+	jwt.StandardClaims
 }
 
 // 基本要求

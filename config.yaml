@@ -1,12 +1,10 @@
 zap:
   level: info
   director: log
-  max-age: 7
+  maxAge: 7
   format: console
-
 server:
   port: 9000
-
 mysql:
   path: 127.0.0.1
   port: "3306"
@@ -14,14 +12,12 @@ mysql:
   db-name: task_pre_work
   username: root
   password: "123456"
-
 redis:
     db: 0
     password: ""
     addr: 127.0.0.1:6379
-
 jwt:
-    signing-key: 12345-zzk-1231231-da1s
-    expires-time: 7d
-    buffer-time: 1d
+    signingKey: 12345-zzk-1231231-da1s
+    expiresTime: 7d
+    bufferTime: 1d
     issuer: zzk

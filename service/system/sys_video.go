@@ -25,7 +25,6 @@ func (v *SysVideoService) UploadVideo(header *multipart.FileHeader, video system
 	if uploadErr != nil {
 		panic(err)
 	}
-	fmt.Println("video对象:", video)
 	if video.StartTime != "" || video.EndTime != "" {
 		err = v.SliceVideo(filename, video.StartTime, video.EndTime)
 
@@ -38,10 +37,11 @@ func (v *SysVideoService) UploadVideo(header *multipart.FileHeader, video system
 	// 将上传的文件存到数据库中
 	s := strings.Split(header.Filename, ".")
 	f := system.SysVideo{
-		Url:  filePath,
-		Name: header.Filename,
-		Tag:  s[len(s)-1],
-		Key:  filename,
+		Url:    filePath,
+		Name:   header.Filename,
+		Tag:    s[len(s)-1],
+		Key:    filename,
+		UserId: video.UserId,
 	}
 	err = v.Upload(&f)
 	return f, err

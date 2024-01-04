@@ -4,6 +4,7 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/model/commen/response"
 	"ZZK_YUNYING_TASK/model/system"
+	"ZZK_YUNYING_TASK/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -33,6 +34,11 @@ func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 		response.FailWithMessage("接收文件失败", ctx)
 		return
 	}
+
+	// 获取用户信息
+	claims, _ := utils.GetClaims(ctx)
+	file.UserId = claims.ID
+
 	file, err = SysVideoService.UploadVideo(header, file)
 	if err != nil {
 		global.TASK_LOGGER.Error("修改数据库链接失败!", zap.Error(err))
