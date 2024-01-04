@@ -6,3 +6,11 @@ zap:
 
 server:
   port: 9000
+
+mysql:
+  path: 127.0.0.1
+  port: "3306"
+  config: charset=utf8mb4&parseTime=true
+  db-name: task_pre_work
+  username: root
+  password: "123456"
