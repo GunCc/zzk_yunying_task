@@ -1,0 +1,5 @@
+zap:
+  level: info
+  director: log
+  max-age: 7
+  format: console
