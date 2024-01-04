@@ -16,12 +16,12 @@ import (
 type SysUserApi struct {
 }
 
-// @Tags SysUser
+// @Tags    SysUser
 // @Summary 用户注册账号
-// @Produce  application/json
-// @Param data body request.Register true "昵称, 密码"
-// @Success 200 {object} response.Response{msg=string} "用户注册账号,返回包括用户信息"
-// @Router /user/register [post]
+// @Produce application/json
+// @Param   data body     request.Register              true "昵称, 密码"
+// @Success 200  {object} response.Response{msg=string} "用户注册账号,返回包括用户信息"
+// @Router  /user/register [post]
 func (SysUserApi) Register(ctx *gin.Context) {
 	var register request.Register
 
@@ -42,12 +42,12 @@ func (SysUserApi) Register(ctx *gin.Context) {
 	response.SuccessWithMessage("注册成功", ctx)
 }
 
-// @Tags SysUser
+// @Tags    SysUser
 // @Summary 用户登陆账号
-// @Produce  application/json
-// @Param data body request.Login true "昵称, 密码"
-// @Success 200 {object} response.Response{data=systemRes.UserLoginAfter,msg=string} "返回用户信息和Token"
-// @Router /user/register [post]
+// @Produce application/json
+// @Param   data body     request.Login                                                true "昵称, 密码"
+// @Success 200  {object} response.Response{data=systemRes.UserLoginAfter,msg=string} "返回用户信息和Token"
+// @Router  /user/login [post]
 func (s *SysUserApi) Login(ctx *gin.Context) {
 	var login request.Login
 

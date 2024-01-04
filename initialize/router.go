@@ -4,6 +4,11 @@ import (
 	"ZZK_YUNYING_TASK/router"
 
 	"github.com/gin-gonic/gin"
+
+	_ "ZZK_YUNYING_TASK/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Routers() *gin.Engine {
@@ -13,6 +18,9 @@ func Routers() *gin.Engine {
 
 	// 系统路由
 	systemRouter := router.RouterGroupApp.System
+
+	// 生成swagger api文档
+	Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 测试路由
 	{

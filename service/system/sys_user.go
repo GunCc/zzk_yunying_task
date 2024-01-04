@@ -14,10 +14,10 @@ import (
 type SysUserService struct {
 }
 
-// @function: Register
+// @function:    Register
 // @description: 注册用户
-// @param: register request.Register
-// @return: user *system.SysUser, err error
+// @param:       register request.Register
+// @return:      user *system.SysUser, err error
 func (SysUserService) Register(register request.Register) (user *system.SysUser, err error) {
 	if !errors.Is(global.TASK_DB.Where("nick_name = ?", register.NickName).First(&system.SysUser{}).Error, gorm.ErrRecordNotFound) {
 		return nil, errors.New("昵称重复")
