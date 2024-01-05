@@ -2,6 +2,4 @@
 /log
 /docs
 /uploads
-go.mod
-go.sum
 config.test.yaml
