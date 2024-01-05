@@ -15,5 +15,7 @@ func (VideoRouter) InitVideoRouter(router *gin.RouterGroup) {
 	{
 		// 上传视频文件路由
 		videoRouter.POST("upload", videoApi.UploadFile)
+		// 获取资源列表
+		videoRouter.POST("getVideoList", videoApi.GetVideoList)
 	}
 }

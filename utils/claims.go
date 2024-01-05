@@ -3,6 +3,7 @@ package utils
 import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/model/system/request"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,6 +11,7 @@ import (
 func GetClaims(c *gin.Context) (*request.CustomClaims, error) {
 	// 从请求头中获取 x-token
 	token := c.Request.Header.Get("x-token")
+	fmt.Println("token", token)
 	j := NewJWT()
 	claims, err := j.ParseToken(token)
 	if err != nil {

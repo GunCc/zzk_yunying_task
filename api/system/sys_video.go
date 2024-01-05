@@ -2,9 +2,11 @@ package system
 
 import (
 	"ZZK_YUNYING_TASK/global"
+	"ZZK_YUNYING_TASK/model/commen/request"
 	"ZZK_YUNYING_TASK/model/commen/response"
 	"ZZK_YUNYING_TASK/model/system"
 	"ZZK_YUNYING_TASK/utils"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -19,8 +21,8 @@ type SysVideoApi struct {
 // @accept multipart/form-data
 // @Produce  application/json
 // @Param file formData file true  "上传文件"
-// @Param start_time formData string true  "开始时间"
-// @Param end_time formData string true  "结束时间"
+// @Param start_time formData string false  "开始时间"
+// @Param end_time formData string false  "结束时间"
 // @Success 200 {object} response.Response{data=system.SysVideo,msg=string} "上传文件示例,返回包括文件详情"
 // @Router /fileUploadAndDownload/upload [post]
 func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
@@ -46,4 +48,40 @@ func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 		return
 	}
 	response.SuccessWithDetailed(file, "上传成功", ctx)
+}
+
+// @Tags    SysVideo
+// @Summary 获取视频资源列表（授权）
+// @Security ApiKeyAuth
+// @Produce application/json
+// @Param   data body     request.ListInfo             false "页码, 页面大小"
+// @Success 200  {object} response.Response{data=response.ListRes,msg=string} "用户注册账号,返回包括用户信息"
+// @Router  /fileUploadAndDownload/getVideoList [post]
+func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
+	var info request.ListInfo
+
+	claims, _ := utils.GetClaims(ctx)
+	user_id := claims.ID
+
+	err := ctx.ShouldBindJSON(&info)
+	if err != nil {
+		global.TASK_LOGGER.Error("获取资源列表参数错误", zap.Error(err))
+		response.FailWithMessage("获取资源列表参数错误", ctx)
+		return
+	}
+
+	fmt.Println("user_id", user_id)
+
+	list, total, err := SysVideoService.GetVideoListByUserId(info, user_id)
+	if err != nil {
+		global.TASK_LOGGER.Error("获取资源列表参数错误", zap.Error(err))
+		response.FailWithMessage("获取资源列表参数错误", ctx)
+		return
+	}
+	response.SuccessWithDetailed(response.ListRes{
+		List:     list,
+		Total:    total,
+		Page:     info.Page,
+		PageSize: info.PageSize,
+	}, "数据获取成功", ctx)
 }

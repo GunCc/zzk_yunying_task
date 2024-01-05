@@ -2,6 +2,7 @@ package system
 
 import (
 	"ZZK_YUNYING_TASK/global"
+	"ZZK_YUNYING_TASK/model/commen/request"
 	"ZZK_YUNYING_TASK/model/system"
 	"ZZK_YUNYING_TASK/utils/upload"
 	"mime/multipart"
@@ -90,4 +91,25 @@ func (v *SysVideoService) DeleteVideo(fileName string, oss upload.OOS) (err erro
 		return err
 	}
 	return err
+}
+
+// @function: GetVideoListByUserId
+// @description: 根据用户ID获取视频列表
+// @param: file *system.SysVideo
+// @return: error
+func (v *SysVideoService) GetVideoListByUserId(info request.ListInfo, user_id uint) (list interface{}, total int64, err error) {
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
+
+	db := global.TASK_DB.Model(&system.SysVideo{})
+	var videoList []system.SysVideo
+
+	db = db.Limit(limit).Offset(offset).Where("user_id = ?", user_id)
+	err = db.Count(&total).Error
+	if err != nil {
+		return
+	}
+	err = db.Find(&videoList).Error
+
+	return videoList, total, err
 }
