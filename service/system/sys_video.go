@@ -4,10 +4,11 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/model/system"
 	"ZZK_YUNYING_TASK/utils/upload"
-	"fmt"
 	"mime/multipart"
 	"os/exec"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 type SysVideoService struct {
@@ -26,11 +27,15 @@ func (v *SysVideoService) UploadVideo(header *multipart.FileHeader, video system
 		panic(err)
 	}
 	if video.StartTime != "" || video.EndTime != "" {
-		err = v.SliceVideo(filename, video.StartTime, video.EndTime)
-
+		newFilePath, err := v.SliceVideo(filename, video.StartTime, video.EndTime)
 		// 裁剪成功，把源文件删除
 		if err == nil {
-
+			err2 := v.DeleteVideo(filename, oss)
+			if err2 != nil {
+				global.TASK_LOGGER.Error("删除失败文件名：", zap.Error(err))
+			}
+			filename = "output_" + filename
+			filePath = newFilePath
 		}
 	}
 
@@ -60,7 +65,7 @@ func (v *SysVideoService) Upload(file *system.SysVideo) error {
 // @description: 截取视频
 // @param: file *system.SysVideo
 // @return: error
-func (v *SysVideoService) SliceVideo(fileName string, startTime string, endTime string) error {
+func (v *SysVideoService) SliceVideo(fileName string, startTime string, endTime string) (string, error) {
 	inputFile := upload.LOCAL_PATH + "/" + fileName
 	outputFile := upload.LOCAL_PATH + "/" + "output_" + fileName
 
@@ -70,9 +75,19 @@ func (v *SysVideoService) SliceVideo(fileName string, startTime string, endTime 
 
 	// 运行 ffmpeg 命令
 	if err := cmd.Run(); err != nil {
-		fmt.Println("ffmpeg转码失败：", err)
+		global.TASK_LOGGER.Error("转码失败：", zap.Error(err))
+		return outputFile, err
+	}
+	return outputFile, nil
+}
+
+// @function: DeleteVideo
+// @description: 删除视频
+// @param: file *system.SysVideo
+// @return: error
+func (v *SysVideoService) DeleteVideo(fileName string, oss upload.OOS) (err error) {
+	if err = oss.DeleteFile(fileName); err != nil {
 		return err
 	}
-	fmt.Println("ffmpeg转码成功")
-	return nil
+	return err
 }

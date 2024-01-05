@@ -4,6 +4,7 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/utils"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -63,4 +64,16 @@ func (l *Local) UploadFile(file *multipart.FileHeader) (string, string, error) {
 		return "", "", errors.New("文件拷贝失败：" + copyErr.Error())
 	}
 	return storePath, filename, nil
+}
+
+// 删除文件
+func (l *Local) DeleteFile(key string) error {
+	p := LOCAL_PATH + "/" + key
+	if strings.Contains(p, LOCAL_PATH) {
+		if err := os.Remove(p); err != nil {
+			fmt.Println("err", err)
+			return errors.New("本地文件删除失败, err:" + err.Error())
+		}
+	}
+	return nil
 }
