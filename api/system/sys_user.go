@@ -82,7 +82,7 @@ func (s *SysUserApi) Login(ctx *gin.Context) {
 }
 
 // 登录后下发Token
-func (s *SysUserApi) TokenNext(c *gin.Context, user *system.SysUser) {
+func (s *SysUserApi) TokenNext(c *gin.Context, user system.SysUser) {
 	j := &utils.JWT{
 		SigningKey: []byte(global.TASK_CONFIG.JWT.SigningKey),
 	}

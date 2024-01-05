@@ -18,12 +18,13 @@ type SysUserService struct {
 // @description: 注册用户
 // @param:       register request.Register
 // @return:      user *system.SysUser, err error
-func (SysUserService) Register(register request.Register) (user *system.SysUser, err error) {
-	if !errors.Is(global.TASK_DB.Where("nick_name = ?", register.NickName).First(&system.SysUser{}).Error, gorm.ErrRecordNotFound) {
-		return nil, errors.New("昵称重复")
+func (SysUserService) Register(register request.Register) (innerUser system.SysUser, err error) {
+	var user system.SysUser
+	if !errors.Is(global.TASK_DB.Where("nickname = ?", register.NickName).First(&system.SysUser{}).Error, gorm.ErrRecordNotFound) {
+		return innerUser, errors.New("昵称重复")
 	}
 
-	user = &system.SysUser{
+	user = system.SysUser{
 		NickName: register.NickName,
 	}
 
@@ -33,16 +34,17 @@ func (SysUserService) Register(register request.Register) (user *system.SysUser,
 	// 加密密码(数据库中存明文密码不安全)
 	user.Password = utils.BcryptHash(register.Password)
 
-	err = global.TASK_DB.Create(user).Error
+	err = global.TASK_DB.Create(&user).Error
 	return user, err
 }
 
-func (SysUserService) Login(login request.Login) (sys_user *system.SysUser, err error) {
+func (SysUserService) Login(login request.Login) (innerUser system.SysUser, err error) {
+	var sys_user system.SysUser
 	err = global.TASK_DB.Where("nickname = ?", login.NickName).First(&sys_user).Error
 
 	if err == nil {
 		if ok := utils.BcryptCheck(sys_user.Password, login.Password); !ok {
-			return nil, errors.New("密码错误")
+			return innerUser, errors.New("密码错误")
 		}
 	}
 
