@@ -23,7 +23,7 @@ type SysVideoApi struct {
 // @Param file formData file true  "上传文件"
 // @Param start_time formData string false  "开始时间"
 // @Param end_time formData string false  "结束时间"
-// @Success 200 {object} response.Response{data=system.SysVideo,msg=string} "上传文件示例,返回包括文件详情"
+// @Success 200 {object} response.Response{data=system.SysVideo,msg=string} "上传文件示例"
 // @Router /fileUploadAndDownload/upload [post]
 func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 	var file system.SysVideo
@@ -55,7 +55,7 @@ func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Produce application/json
 // @Param   data body     request.ListInfo             false "页码, 页面大小"
-// @Success 200  {object} response.Response{data=response.ListRes,msg=string} "用户注册账号,返回包括用户信息"
+// @Success 200  {object} response.Response{data=response.ListRes,msg=string} "视频列表信息"
 // @Router  /fileUploadAndDownload/getVideoList [post]
 func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
 	var info request.ListInfo
@@ -89,26 +89,25 @@ func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
 // @Tags    SysVideo
 // @Summary 下载视频资源
 // @Security ApiKeyAuth
-// @Produce application/json
-// @Param   data body     request.GetById             false "页码, 页面大小"
-// @Success 200  {object} response.Response{msg=string} "用户注册账号,返回包括用户信息"
-// @Router  /fileUploadAndDownload/download [post]
+// @accept multipart/form-data
+// @Produce  application/json
+// @Param  id query string true "视频id"
+// @Success 200
+// @Router  /fileUploadAndDownload/download [get]
 func (v *SysVideoApi) DownloadVideo(ctx *gin.Context) {
-	var reqId request.GetById
 
-	err := ctx.ShouldBindJSON(&reqId)
-	if err != nil {
-		global.TASK_LOGGER.Error("获取视频ID参数错误", zap.Error(err))
-		response.FailWithMessage("获取视频ID参数错误", ctx)
-		return
-	}
-	url, err := SysVideoService.DownloadVideo(reqId.Uint())
+	fileId := ctx.Query("id")
+
+	video, err := SysVideoService.DownloadVideo(fileId)
+
 	if err != nil {
 		global.TASK_LOGGER.Error("下载失败!", zap.Error(err))
 		response.FailWithMessage("下载失败", ctx)
 		return
 	}
 
+	ctx.Writer.Header().Add("Content-Type", "application/octet-stream")
+	ctx.Writer.Header().Add("Content-Disposition", "attachment; filename="+video.Key)
 	ctx.Writer.Header().Add("success", "true")
-	ctx.File(url)
+	ctx.File(video.Url)
 }
