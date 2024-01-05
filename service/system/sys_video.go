@@ -5,11 +5,14 @@ import (
 	"ZZK_YUNYING_TASK/model/commen/request"
 	"ZZK_YUNYING_TASK/model/system"
 	"ZZK_YUNYING_TASK/utils/upload"
+	"errors"
 	"mime/multipart"
+	"os"
 	"os/exec"
 	"strings"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type SysVideoService struct {
@@ -112,4 +115,23 @@ func (v *SysVideoService) GetVideoListByUserId(info request.ListInfo, user_id ui
 	err = db.Find(&videoList).Error
 
 	return videoList, total, err
+}
+
+// @function: DownloadVideo
+// @description: 根据视频ID下载视频
+// @param: file *system.SysVideo
+// @return: error
+func (v *SysVideoService) DownloadVideo(id uint) (url string, err error) {
+	var video system.SysVideo
+	db := global.TASK_DB.Model(&system.SysVideo{})
+	if errors.Is(db.Where("id = ?", id).Find(&video).Error, gorm.ErrRecordNotFound) {
+		return "", errors.New("视频不存在")
+	}
+	_, err = os.Stat(video.Url)
+	if err != nil {
+		global.TASK_LOGGER.Error("视频不存在!", zap.Error(err))
+		return "", errors.New("视频不存在")
+	}
+
+	return video.Url, nil
 }

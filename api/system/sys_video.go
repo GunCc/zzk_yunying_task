@@ -65,8 +65,8 @@ func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&info)
 	if err != nil {
-		global.TASK_LOGGER.Error("获取资源列表参数错误", zap.Error(err))
-		response.FailWithMessage("获取资源列表参数错误", ctx)
+		global.TASK_LOGGER.Error("获取视频列表参数错误", zap.Error(err))
+		response.FailWithMessage("获取视频列表参数错误", ctx)
 		return
 	}
 
@@ -74,8 +74,8 @@ func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
 
 	list, total, err := SysVideoService.GetVideoListByUserId(info, user_id)
 	if err != nil {
-		global.TASK_LOGGER.Error("获取资源列表参数错误", zap.Error(err))
-		response.FailWithMessage("获取资源列表参数错误", ctx)
+		global.TASK_LOGGER.Error("获取视频列表参数错误", zap.Error(err))
+		response.FailWithMessage("获取视频列表参数错误", ctx)
 		return
 	}
 	response.SuccessWithDetailed(response.ListRes{
@@ -84,4 +84,31 @@ func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
 		Page:     info.Page,
 		PageSize: info.PageSize,
 	}, "数据获取成功", ctx)
+}
+
+// @Tags    SysVideo
+// @Summary 下载视频资源
+// @Security ApiKeyAuth
+// @Produce application/json
+// @Param   data body     request.GetById             false "页码, 页面大小"
+// @Success 200  {object} response.Response{msg=string} "用户注册账号,返回包括用户信息"
+// @Router  /fileUploadAndDownload/download [post]
+func (v *SysVideoApi) DownloadVideo(ctx *gin.Context) {
+	var reqId request.GetById
+
+	err := ctx.ShouldBindJSON(&reqId)
+	if err != nil {
+		global.TASK_LOGGER.Error("获取视频ID参数错误", zap.Error(err))
+		response.FailWithMessage("获取视频ID参数错误", ctx)
+		return
+	}
+	url, err := SysVideoService.DownloadVideo(reqId.Uint())
+	if err != nil {
+		global.TASK_LOGGER.Error("下载失败!", zap.Error(err))
+		response.FailWithMessage("下载失败", ctx)
+		return
+	}
+
+	ctx.Writer.Header().Add("success", "true")
+	ctx.File(url)
 }
