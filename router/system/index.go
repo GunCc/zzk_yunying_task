@@ -4,4 +4,5 @@ package system
 type SystemRouterGroup struct {
 	UserRouter
 	VideoRouter
+	NotifyRouter
 }

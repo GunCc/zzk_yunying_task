@@ -9,6 +9,7 @@ import (
 	"errors"
 	"mime/multipart"
 	"os"
+	"strconv"
 	"strings"
 
 	"go.uber.org/zap"
@@ -73,6 +74,7 @@ func (v *SysVideoService) UploadVideo(header *multipart.FileHeader, video sysReq
 			inputFileName = ""
 		}
 		err = v.Update(&f)
+		SysNotifyServiceApp.SendNotification(strconv.Itoa(int(f.UserId)))
 	}
 
 	return &f, err

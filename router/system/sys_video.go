@@ -19,8 +19,5 @@ func (VideoRouter) InitVideoRouter(router *gin.RouterGroup) {
 		videoRouter.POST("getVideoList", videoApi.GetVideoList)
 		// 下载资源
 		videoRouter.GET("download", videoApi.DownloadVideo)
-		// 查看资源下载情况
-		// videoRouter.GET("getVideoProgress",videoApi.DownloadVideo)
-
 	}
 }

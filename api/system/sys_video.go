@@ -7,7 +7,6 @@ import (
 	sysReq "ZZK_YUNYING_TASK/model/system/request"
 	"ZZK_YUNYING_TASK/utils"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -124,48 +123,4 @@ func (v *SysVideoApi) DownloadVideo(ctx *gin.Context) {
 	ctx.Writer.Header().Add("Content-Disposition", "attachment; filename="+video.OutputFileName)
 	ctx.Writer.Header().Add("success", "true")
 	ctx.File(video.Url)
-}
-
-// @Tags    SysVideo
-// @Summary 获取视频裁剪进度
-// @Security ApiKeyAuth
-// @accept multipart/form-data
-// @Produce  application/json
-// @Param  id query string true "视频id"
-// @Success 200
-// @Router  /fileUploadAndDownload/getVideoProgress [get]
-func (v *SysVideoApi) GetVideoProgress(ctx *gin.Context) {
-	// w := ctx.Writer
-	// r := ctx.Request
-	// fmt.Println(r.Method)
-	// appId := r.URL.Query()["appId"]
-	// page := r.URL.Query()["page"]
-	// pageSize := r.URL.Query()["pageSize"]
-	// fmt.Println("获取到参数")
-	// fmt.Println(appId)
-	// fmt.Println(page)
-	// fmt.Println(pageSize)
-
-	// w.Header().Set("Content-Type", "text/event-stream")
-	// w.Header().Set("Cache-Control", "no-cache")
-	// w.Header().Set("Connection", "keep-alive")
-	// w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	// flusher, ok := w.(http.Flusher)
-	// if !ok {
-	// 	log.Panic("server not support")
-	// }
-	// for {
-	// 	if getInput == "" || getInput == "结束" {
-	// 		return
-	// 	}
-
-	// 	time.Sleep(1 * time.Second)
-	// 	//fmt.Fprintf(w, "data: %d%s%s%s\n\n", i, appId[0], page[0], pageSize[0])
-	// 	//now := time.Now()
-	// 	//timeStr := now.Format("2006-01-02 15:04:05")
-	// 	fmt.Fprintf(w, "data: %s\n\n", getInput)
-	// 	flusher.Flush()
-	// }
-	// fmt.Fprintf(w, "event: close\ndata: close\n\n") // 一定要带上data，否则无效
 }
