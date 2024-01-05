@@ -4,7 +4,7 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/model/commen/request"
 	"ZZK_YUNYING_TASK/model/commen/response"
-	"ZZK_YUNYING_TASK/model/system"
+	sysReq "ZZK_YUNYING_TASK/model/system/request"
 	"ZZK_YUNYING_TASK/utils"
 	"fmt"
 
@@ -26,11 +26,14 @@ type SysVideoApi struct {
 // @Success 200 {object} response.Response{data=system.SysVideo,msg=string} "上传文件示例"
 // @Router /fileUploadAndDownload/upload [post]
 func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
-	var file system.SysVideo
+	var videoParams sysReq.UploadVideoParams
 	// 接收文件 参数为文件字段
 	_, header, err := ctx.Request.FormFile("file")
-	file.StartTime = ctx.PostForm("start_time")
-	file.EndTime = ctx.PostForm("end_time")
+	videoParams.StartTime = ctx.PostForm("start_time")
+	videoParams.EndTime = ctx.PostForm("end_time")
+
+	// 是否保存源文件 0 代表不 1 代表保存
+	videoParams.Save = "0"
 	if err != nil {
 		global.TASK_LOGGER.Error("接收文件失败!", zap.Error(err))
 		response.FailWithMessage("接收文件失败", ctx)
@@ -39,12 +42,12 @@ func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 
 	// 获取用户信息
 	claims, _ := utils.GetClaims(ctx)
-	file.UserId = claims.ID
+	videoParams.UserId = claims.ID
 
-	file, err = SysVideoService.UploadVideo(header, file)
+	file, err := SysVideoService.UploadVideo(header, videoParams)
 	if err != nil {
-		global.TASK_LOGGER.Error("修改数据库链接失败!", zap.Error(err))
-		response.FailWithMessage("修改数据库链接失败", ctx)
+		global.TASK_LOGGER.Error("视频裁剪失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), ctx)
 		return
 	}
 	response.SuccessWithDetailed(file, "上传成功", ctx)
@@ -107,7 +110,51 @@ func (v *SysVideoApi) DownloadVideo(ctx *gin.Context) {
 	}
 
 	ctx.Writer.Header().Add("Content-Type", "application/octet-stream")
-	ctx.Writer.Header().Add("Content-Disposition", "attachment; filename="+video.Key)
+	ctx.Writer.Header().Add("Content-Disposition", "attachment; filename="+video.OutputFileName)
 	ctx.Writer.Header().Add("success", "true")
 	ctx.File(video.Url)
+}
+
+// @Tags    SysVideo
+// @Summary 获取视频裁剪进度
+// @Security ApiKeyAuth
+// @accept multipart/form-data
+// @Produce  application/json
+// @Param  id query string true "视频id"
+// @Success 200
+// @Router  /fileUploadAndDownload/getVideoProgress [get]
+func (v *SysVideoApi) GetVideoProgress(ctx *gin.Context) {
+	// w := ctx.Writer
+	// r := ctx.Request
+	// fmt.Println(r.Method)
+	// appId := r.URL.Query()["appId"]
+	// page := r.URL.Query()["page"]
+	// pageSize := r.URL.Query()["pageSize"]
+	// fmt.Println("获取到参数")
+	// fmt.Println(appId)
+	// fmt.Println(page)
+	// fmt.Println(pageSize)
+
+	// w.Header().Set("Content-Type", "text/event-stream")
+	// w.Header().Set("Cache-Control", "no-cache")
+	// w.Header().Set("Connection", "keep-alive")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// flusher, ok := w.(http.Flusher)
+	// if !ok {
+	// 	log.Panic("server not support")
+	// }
+	// for {
+	// 	if getInput == "" || getInput == "结束" {
+	// 		return
+	// 	}
+
+	// 	time.Sleep(1 * time.Second)
+	// 	//fmt.Fprintf(w, "data: %d%s%s%s\n\n", i, appId[0], page[0], pageSize[0])
+	// 	//now := time.Now()
+	// 	//timeStr := now.Format("2006-01-02 15:04:05")
+	// 	fmt.Fprintf(w, "data: %s\n\n", getInput)
+	// 	flusher.Flush()
+	// }
+	// fmt.Fprintf(w, "event: close\ndata: close\n\n") // 一定要带上data，否则无效
 }

@@ -4,11 +4,11 @@ import (
 	"ZZK_YUNYING_TASK/global"
 	"ZZK_YUNYING_TASK/model/commen/request"
 	"ZZK_YUNYING_TASK/model/system"
+	sysReq "ZZK_YUNYING_TASK/model/system/request"
 	"ZZK_YUNYING_TASK/utils/upload"
 	"errors"
 	"mime/multipart"
 	"os"
-	"os/exec"
 	"strings"
 
 	"go.uber.org/zap"
@@ -22,67 +22,76 @@ type SysVideoService struct {
 // @description: 上传视频
 // @param: header *multipart.FileHeader, noSave string
 // @return: file system.SysVideo, err error
-func (v *SysVideoService) UploadVideo(header *multipart.FileHeader, video system.SysVideo) (file system.SysVideo, err error) {
+func (v *SysVideoService) UploadVideo(header *multipart.FileHeader, video sysReq.UploadVideoParams) (file *system.SysVideo, err error) {
 
 	oss := upload.NewOOS()
-	filePath, filename, uploadErr := oss.UploadFile(header)
+	filePath, inputFileName, uploadErr := oss.UploadFile(header)
+
 	// 如果上传失败
 	if uploadErr != nil {
 		panic(err)
 	}
-	if video.StartTime != "" || video.EndTime != "" {
-		newFilePath, err := v.SliceVideo(filename, video.StartTime, video.EndTime)
-		// 裁剪成功，把源文件删除
+
+	s := strings.Split(header.Filename, ".")
+	// 1. 上传成功后保存基本信息
+	f := system.SysVideo{
+		Url:           filePath,
+		InputFileName: inputFileName,
+		UserId:        video.UserId,
+		Status:        0,
+		Name:          header.Filename,
+		Tag:           s[len(s)-1],
+	}
+
+	err = v.Create(&f)
+	if err != nil {
+		return nil, errors.New("视频创建失败")
+	}
+
+	// 2. 视频裁剪转码
+	newFilePath, err := upload.SliceVideo(inputFileName, video.StartTime, video.EndTime)
+	outputFileName := "output_" + inputFileName
+	// 3. 错误处理
+	if err != nil {
+		f.Status = 2
+		err = v.Update(&f)
 		if err == nil {
-			err2 := v.DeleteVideo(filename, oss)
-			if err2 != nil {
+			err = errors.New("裁剪失败")
+		}
+	} else {
+		// 4. 成功处理
+		f.Status = 1
+		f.OutputFileName = outputFileName
+		f.Url = newFilePath
+		// Save 0 表示删除源文件
+		if video.Save == "0" {
+			err = v.DeleteVideo(inputFileName, oss)
+			if err != nil {
 				global.TASK_LOGGER.Error("删除失败文件名：", zap.Error(err))
 			}
-			filename = "output_" + filename
-			filePath = newFilePath
+			// 删除了源文件没有保存就不显示了
+			inputFileName = ""
 		}
+		err = v.Update(&f)
 	}
 
-	// 将上传的文件存到数据库中
-	s := strings.Split(header.Filename, ".")
-	f := system.SysVideo{
-		Url:    filePath,
-		Name:   header.Filename,
-		Tag:    s[len(s)-1],
-		Key:    filename,
-		UserId: video.UserId,
-	}
-	err = v.Upload(&f)
-	return f, err
-
+	return &f, err
 }
 
-// @function: Upload
+// @function: Create
 // @description: 创建文件上传记录
 // @param: file *system.SysVideo
 // @return: error
-func (v *SysVideoService) Upload(file *system.SysVideo) error {
+func (v *SysVideoService) Create(file *system.SysVideo) error {
 	return global.TASK_DB.Create(file).Error
 }
 
-// @function: SliceVideo
-// @description: 截取视频
+// @function: Update
+// @description: 修改文件上传记录
 // @param: file *system.SysVideo
 // @return: error
-func (v *SysVideoService) SliceVideo(fileName string, startTime string, endTime string) (string, error) {
-	inputFile := upload.LOCAL_PATH + "/" + fileName
-	outputFile := upload.LOCAL_PATH + "/" + "output_" + fileName
-
-	// 设置 ffmpeg命令行参数
-	args := []string{"-i", inputFile, "-ss", "00:03", "-to", "00:08", "-c:v", "libx264", "-crf", "30", outputFile}
-	cmd := exec.Command("ffmpeg", args...)
-
-	// 运行 ffmpeg 命令
-	if err := cmd.Run(); err != nil {
-		global.TASK_LOGGER.Error("转码失败：", zap.Error(err))
-		return outputFile, err
-	}
-	return outputFile, nil
+func (v *SysVideoService) Update(file *system.SysVideo) error {
+	return global.TASK_DB.Updates(file).Error
 }
 
 // @function: DeleteVideo
