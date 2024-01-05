@@ -33,6 +33,12 @@ func (SysUserApi) Register(ctx *gin.Context) {
 		return
 	}
 
+	// 注册数据校验
+	if err := utils.Verify(register, utils.RegisterVerify); err != nil {
+		response.FailWithMessage(err.Error(), ctx)
+		return
+	}
+
 	_, err = userService.Register(register)
 	if err != nil {
 		global.TASK_LOGGER.Error("注册失败", zap.Error(err))
@@ -56,6 +62,12 @@ func (s *SysUserApi) Login(ctx *gin.Context) {
 	if err != nil {
 		global.TASK_LOGGER.Error("登录参数错误", zap.Error(err))
 		response.FailWithMessage("登录失败", ctx)
+		return
+	}
+
+	// 登录数据校验
+	if err := utils.Verify(login, utils.LoginVerify); err != nil {
+		response.FailWithMessage(err.Error(), ctx)
 		return
 	}
 

@@ -21,8 +21,8 @@ type SysVideoApi struct {
 // @accept multipart/form-data
 // @Produce  application/json
 // @Param file formData file true  "上传文件"
-// @Param start_time formData string false  "开始时间"
-// @Param end_time formData string false  "结束时间"
+// @Param start_time formData string false  "开始时间（格式mm:ss)"
+// @Param end_time formData string false  "结束时间（格式mm:ss)"
 // @Success 200 {object} response.Response{data=system.SysVideo,msg=string} "上传文件示例"
 // @Router /fileUploadAndDownload/upload [post]
 func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
@@ -31,7 +31,10 @@ func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 	_, header, err := ctx.Request.FormFile("file")
 	videoParams.StartTime = ctx.PostForm("start_time")
 	videoParams.EndTime = ctx.PostForm("end_time")
-
+	if err := utils.Verify(videoParams, utils.VideoVerity); err != nil {
+		response.FailWithMessage(err.Error(), ctx)
+		return
+	}
 	// 是否保存源文件 0 代表不 1 代表保存
 	videoParams.Save = "0"
 	if err != nil {
@@ -62,6 +65,14 @@ func (v *SysVideoApi) UploadFile(ctx *gin.Context) {
 // @Router  /fileUploadAndDownload/getVideoList [post]
 func (v *SysVideoApi) GetVideoList(ctx *gin.Context) {
 	var info request.ListInfo
+
+	if info.Page == 0 {
+		info.Page = 1
+	}
+
+	if info.PageSize == 0 {
+		info.PageSize = 10
+	}
 
 	claims, _ := utils.GetClaims(ctx)
 	user_id := claims.ID
