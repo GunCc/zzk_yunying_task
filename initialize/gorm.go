@@ -14,6 +14,9 @@ import (
 
 func Gorm() *gorm.DB {
 	ms := global.TASK_CONFIG.Mysql
+
+	fmt.Println("mysql配置", global.TASK_CONFIG.Mysql)
+
 	if ms.DbName == "" {
 		return nil
 	}

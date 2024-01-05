@@ -17,7 +17,9 @@ redis:
     password: ""
     addr: 127.0.0.1:6379
 jwt:
-    signingKey: 12345-zzk-1231231-da1s
-    expiresTime: 7d
-    bufferTime: 1d
+    signingkey: 12345-zzk-1231231-da1s
+    expires: 7d
+    buffer: 1d
     issuer: zzk
+
+

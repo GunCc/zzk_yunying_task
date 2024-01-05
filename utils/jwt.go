@@ -29,6 +29,14 @@ func NewJWT() *JWT {
 
 // 创建一个声明
 func (j *JWT) CreateClaims(baseClaims request.BaseClaims) request.CustomClaims {
+
+	if global.TASK_CONFIG.JWT.BufferTime == "" {
+		global.TASK_CONFIG.JWT.BufferTime = "1d"
+	}
+
+	if global.TASK_CONFIG.JWT.ExpiresTime == "" {
+		global.TASK_CONFIG.JWT.ExpiresTime = "7d"
+	}
 	// 缓冲时间
 	bf, _ := ParseDuration(global.TASK_CONFIG.JWT.BufferTime)
 	// 有效时间

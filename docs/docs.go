@@ -98,39 +98,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/fileUploadAndDownload/getVideoProgress": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "SysVideo"
-                ],
-                "summary": "获取视频裁剪进度",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "视频id",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/fileUploadAndDownload/upload": {
             "post": {
                 "security": [
