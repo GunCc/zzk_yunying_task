@@ -23,3 +23,27 @@
 
 `config.yaml` 设置配置相关数据的文件
 `main.go` 程序主入口
+
+
+# 运行
+
+亲爱的面试官你好，我来介绍一下项目执行顺序
+
+## 1. 拉取项目
+git clone https://github.com/GunCc/zzk_yunying_task.git
+cd zzk_yunying_task
+
+## 2. 下载依赖
+go mod tidy
+
+
+## 3. 初始化文档
+swag init
+
+## 4. 启动项目
+go run main.go
+
+
+## 5. 访问页面
+http://127.0.0.1:9000/swagger/index.html
+
