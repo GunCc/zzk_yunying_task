@@ -1,0 +1,257 @@
+definitions:
+  request.ListInfo:
+    properties:
+      page:
+        type: integer
+      pagesize:
+        type: integer
+    type: object
+  request.Login:
+    properties:
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+  request.Register:
+    properties:
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+  response.ListRes:
+    properties:
+      list: {}
+      page:
+        type: integer
+      pagesize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  response.UserLoginAfter:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/system.SysUser'
+    type: object
+  system.SysUser:
+    properties:
+      created_at:
+        description: 创建时间  `gorm:"primarykey" json:"id"`
+        type: string
+      id:
+        description: 主键ID
+        type: integer
+      nickname:
+        type: string
+      password:
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+      uuid:
+        type: string
+    type: object
+  system.SysVideo:
+    properties:
+      created_at:
+        description: 创建时间  `gorm:"primarykey" json:"id"`
+        type: string
+      id:
+        description: 主键ID
+        type: integer
+      input_file_name:
+        type: string
+      name:
+        type: string
+      output_file_name:
+        type: string
+      status:
+        type: integer
+      tag:
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+      url:
+        type: string
+      user_id:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: 云影天光后端开发实习生笔试题
+  title: 云影天光后端开发实习生笔试题
+  version: "1.1"
+paths:
+  /fileUploadAndDownload/download:
+    get:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 视频id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: 下载视频资源
+      tags:
+      - SysVideo
+  /fileUploadAndDownload/getVideoList:
+    post:
+      parameters:
+      - description: 页码, 页面大小
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/request.ListInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 视频列表信息
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ListRes'
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 获取视频资源列表（授权）
+      tags:
+      - SysVideo
+  /fileUploadAndDownload/getVideoProgress:
+    get:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 视频id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: 获取视频裁剪进度
+      tags:
+      - SysVideo
+  /fileUploadAndDownload/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 上传文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 开始时间（格式mm:ss)
+        in: formData
+        name: start_time
+        type: string
+      - description: 结束时间（格式mm:ss)
+        in: formData
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传文件示例
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/system.SysVideo'
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 上传文件示例
+      tags:
+      - SysVideo
+  /user/login:
+    post:
+      parameters:
+      - description: 昵称, 密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回用户信息和Token
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.UserLoginAfter'
+                msg:
+                  type: string
+              type: object
+      summary: 用户登陆账号
+      tags:
+      - SysUser
+  /user/register:
+    post:
+      parameters:
+      - description: 昵称, 密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Register'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户注册账号,返回包括用户信息
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: 用户注册账号
+      tags:
+      - SysUser
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: x-token
+    type: apiKey
+swagger: "2.0"
